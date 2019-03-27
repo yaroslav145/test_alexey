@@ -3,7 +3,7 @@
 
 	//print_r($_GET);
 		
-	$step = 10;
+	$step = 30;
 	$yaw = 0;
 		
 	if(!isset($_SESSION['player']))
@@ -12,14 +12,14 @@
 			'yaw' => 0,
 		
 			0 => array(
-				'x' => 100,
-				'y' => 100,
+				'x' => 30 * 7,
+				'y' => 30 * 4,
 			),
 		);
 		
 		$_SESSION['ball'] = array(
-			'x' => 200,
-			'y' => 300,
+			'x' => 30 * 3,
+			'y' => 30 * 2,
 		);
 	}
 	
@@ -39,19 +39,21 @@
 	if(isset($_GET['3']))
 		$player['yaw'] = 3;
 	
-	print_r($ball);
-	print_r($player);
+	//print_r($ball);
+	//print_r($player);
 	
 	if(($ball['x'] == $player[0]['x']) && ($ball['y'] == $player[0]['y']))
 	{
-		$ball['x'] = rand(1, 25) * $step;
-		$ball['y'] = rand(1, 25) * $step;
+		
+		$ball['x'] = rand(0, 1600/$step) * $step;
+		$ball['y'] = rand(0, 700/$step) * $step;
 		
 		$temp['x'] = $player[0]['x'];
 		$temp['y'] = $player[0]['y'];
 		$player[] = $temp;
 	}
 	
+	$prev = $player[0];
 	
 	if($player['yaw'] == 0)
 		$player[0]['y'] -= $step;
@@ -64,6 +66,16 @@
 	
 	if($player['yaw'] == 3)
 		$player[0]['y'] += $step;
+	
+	foreach($player as $key => $val)
+	{
+		if(($key != 0) && ($key != 'yaw'))
+		{
+			$temp = $player[$key];
+			$player[$key] = $prev;
+			$prev = $temp;
+		}
+	}
 ?>
 
 
@@ -84,22 +96,23 @@
 </form>
 
 <?php
-	function drawRect($x, $y)
+	function drawRect($x, $y, $step)
 	{
-		$w = 25;
-		$h = 25;
+		$w = $step;
+		$h = $step;
 		
 		echo '<rect fill="red" width="'.$w.'" height="'.$h.'" x="'.($x - $w/2).'" y="'.($y - $h/2).'"/>';
 	}
 ?>
 
 
-<svg width="98%" height="700px" style="border:2px solid black; background-color: pink">
+<svg width="98vw" height="98vh" style="border:2px solid black; background-color: pink">
 	<?php
 		foreach($player as $val)
-			drawRect($val['x'], $val['y']);
+			if(isset($val['y']))
+				drawRect($val['x'], $val['y'], $step);
 			
-		echo '<circle r=10px cx="'.$ball['x'].'" cy="'.$ball['y'].'" fill="blue">';
+		echo '<circle r='.($step*0.35).'px cx="'.$ball['x'].'" cy="'.$ball['y'].'" fill="blue">';
 	?>
 </svg>
 
